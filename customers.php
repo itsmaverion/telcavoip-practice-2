@@ -100,6 +100,7 @@ require 'includes/header.php';
 <form class="toolbar" method="get">
   <input type="text" name="q" value="<?= e($q) ?>" placeholder="Szukaj po nazwie, NIP, email, telefon" style="max-width:340px;">
   <button class="btn btn-secondary" type="submit">Szukaj</button>
+  <a class="btn btn-secondary" href="export.php?type=customers">Eksport CSV</a>
 </form>
 
 <table>
