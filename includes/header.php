@@ -21,6 +21,7 @@ if (!isset($page)) { $page = ''; }
       <a href="voip.php" class="<?= $page === 'voip' ? 'active' : '' ?>">Konta VoIP</a>
       <a href="services.php" class="<?= $page === 'services' ? 'active' : '' ?>">Uslugi</a>
       <a href="interventions.php" class="<?= $page === 'interventions' ? 'active' : '' ?>">Interwencje</a>
+      <a href="reports.php" class="<?= $page === 'reports' ? 'active' : '' ?>">Raporty</a>
       <?php if (current_role() === 'administrator'): ?>
         <a href="users.php" class="<?= $page === 'users' ? 'active' : '' ?>">Uzytkownicy</a>
         <a href="audit.php" class="<?= $page === 'audit' ? 'active' : '' ?>">Audyt</a>
