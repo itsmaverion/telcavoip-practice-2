@@ -7,7 +7,7 @@ require_login();
 $today = date('Y-m-d');
 $soon = date('Y-m-d', strtotime('+30 days'));
 
-// 1. Uslugi wygasajace w ciagu 30 dni.
+// uslugi wygasajace w 30 dni
 $stmt = $pdo->prepare(
     'SELECT s.*, c.name AS customer_name
      FROM services s JOIN customers c ON c.id = s.customer_id
@@ -17,7 +17,7 @@ $stmt = $pdo->prepare(
 $stmt->execute([$today, $soon]);
 $expiring = $stmt->fetchAll();
 
-// 2. Otwarte interwencje (zalegle = otwarte dluzej niz 7 dni).
+// otwarte interwencje
 $open = $pdo->query(
     "SELECT i.*, c.name AS customer_name
      FROM interventions i JOIN customers c ON c.id = i.customer_id
@@ -26,7 +26,7 @@ $open = $pdo->query(
 )->fetchAll();
 $overdue_limit = date('Y-m-d H:i:s', strtotime('-7 days'));
 
-// 3. Mozliwe duplikaty klientow - ten sam NIP u wiecej niz jednego klienta.
+// duplikaty po NIP
 $dups = $pdo->query(
     'SELECT vat, COUNT(*) AS cnt, GROUP_CONCAT(name SEPARATOR ", ") AS names
      FROM customers GROUP BY vat HAVING cnt > 1'

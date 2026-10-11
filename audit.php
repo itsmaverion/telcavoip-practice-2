@@ -2,10 +2,9 @@
 require_once 'auth.php';
 require_once 'db.php';
 require_once 'functions.php';
-require_role('administrator'); // dziennik widzi tylko administrator
+require_role('administrator');
 
-// Dziennik jest tylko do odczytu - nie ma tu zadnego dodawania,
-// edycji ani usuwania wpisow. Dlatego audyt jest niezmienialny.
+// tylko odczyt - audytu nie da sie edytowac ani usuwac
 $list = $pdo->query(
     'SELECT a.*, u.name AS actor_name
      FROM audit_logs a

@@ -8,14 +8,13 @@ $error = '';
 
 $statuses = ['active' => 'aktywne', 'suspended' => 'zawieszone', 'terminated' => 'zakonczone'];
 
-// --- Dodanie konta VoIP ---
+// nowe konto
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
     require_role('administrator', 'operator');
     $customer_id = (int)($_POST['customer_id'] ?? 0);
     $number = trim($_POST['number'] ?? '');
     $status = $_POST['status'] ?? 'active';
 
-    // Konto musi byc przypiete do istniejacego klienta.
     $stmt = $pdo->prepare('SELECT id FROM customers WHERE id = ?');
     $stmt->execute([$customer_id]);
     if (!$stmt->fetch()) {
@@ -30,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     }
 }
 
-// --- Edycja konta (numer + ewentualne przepiecie na innego klienta) ---
+// edycja - mozna tez przepiac na innego klienta
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit') {
     require_role('administrator', 'operator');
     $id = (int)($_POST['id'] ?? 0);
@@ -51,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit'
     } else {
         $stmt = $pdo->prepare('UPDATE voip_accounts SET customer_id = ?, number = ? WHERE id = ?');
         $stmt->execute([$customer_id, $number, $id]);
-        // Przepiecie na innego klienta zapisujemy osobno w audycie.
+        // zmiana klienta -> osobny wpis w audycie
         if ((int)$current['customer_id'] !== $customer_id) {
             write_audit($pdo, $_SESSION['user_id'], 'reassign', 'voip', $id);
         }
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit'
     }
 }
 
-// --- Zmiana statusu ---
+// zmiana statusu
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'status') {
     require_role('administrator', 'operator');
     $id = (int)($_POST['id'] ?? 0);
@@ -75,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'statu
 
 $success = isset($_GET['ok']) ? 'Zapisano zmiany' : '';
 
-// Lista kont z nazwa klienta (JOIN).
 $list = $pdo->query(
     'SELECT v.*, c.name AS customer_name
      FROM voip_accounts v
@@ -85,7 +83,7 @@ $list = $pdo->query(
 
 $customers = $pdo->query('SELECT id, name FROM customers WHERE active = 1 ORDER BY name')->fetchAll();
 
-// Dane do edycji (jak kliknieto Edytuj).
+// dane do edycji
 $edit = null;
 if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare('SELECT * FROM voip_accounts WHERE id = ?');

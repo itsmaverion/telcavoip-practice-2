@@ -18,7 +18,7 @@ if (!$service) {
     die('Nie znaleziono uslugi.');
 }
 
-// Pelna historia odnowien danej uslugi.
+// historia odnowien
 $stmt = $pdo->prepare(
     'SELECT r.*, u.name AS user_name
      FROM renewals r LEFT JOIN users u ON u.id = r.registered_by

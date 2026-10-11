@@ -7,7 +7,7 @@ require_login();
 $error = '';
 $today = date('Y-m-d');
 
-// --- Dodanie uslugi ---
+// nowa usluga
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
     require_role('administrator', 'operator');
     $customer_id = (int)($_POST['customer_id'] ?? 0);
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     }
 }
 
-// --- Odnowienie uslugi ---
+// odnowienie
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'renew') {
     require_role('administrator', 'operator');
     $id = (int)($_POST['id'] ?? 0);
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'renew
     } elseif ($new_expiry <= $service['expiry_date']) {
         $error = 'Nowa data waznosci musi byc pozniejsza niz obecna';
     } else {
-        // Zapisujemy odnowienie do historii i aktualizujemy date waznosci.
+        // zapis do historii + nowa data waznosci
         $stmt = $pdo->prepare(
             'INSERT INTO renewals (service_id, old_expiry_date, new_expiry_date, renewal_date, registered_by)
              VALUES (?, ?, ?, ?, ?)'
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'renew
 
 $success = isset($_GET['ok']) ? 'Zapisano zmiany' : '';
 
-// --- Filtr aktywne / wygasle ---
+// filtr
 $filter = $_GET['filter'] ?? '';
 $sql = 'SELECT s.*, c.name AS customer_name FROM services s JOIN customers c ON c.id = s.customer_id';
 if ($filter === 'active') {

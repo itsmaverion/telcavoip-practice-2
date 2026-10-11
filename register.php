@@ -15,15 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $role = $_POST['role'] ?? 'operator';
 
-    // Przez rejestracje mozna zalozyc tylko operatora lub technika.
+    // tylko operator albo technik
     if (!in_array($role, ['operator', 'technician'], true)) {
         $role = 'operator';
     }
 
     if (strlen($password) < 6) {
         $error = 'Haslo musi miec min. 6 znakow';
-    } else {
-        // Sprawdzamy czy email nie jest juz zajety.
+    } else {
         $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) {

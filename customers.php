@@ -7,7 +7,7 @@ require_login();
 $error = '';
 $success = '';
 
-// --- Obsluga zapisu (dodanie lub edycja) ---
+// zapis klienta (nowy albo edycja)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save') {
     require_role('administrator', 'operator');
 
@@ -18,8 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
 
-    // Sprawdzenie duplikatow: ten sam NIP, email lub telefon
-    // (pomijamy samego siebie przy edycji).
+    // duplikat? ten sam NIP/email/telefon (bez samego siebie)
     $stmt = $pdo->prepare(
         'SELECT id FROM customers
          WHERE (vat = ? OR email = ? OR phone = ?) AND id <> ?'
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
     }
 }
 
-// --- Deaktywacja klienta ---
+// wylaczenie klienta
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'deactivate') {
     require_role('administrator', 'operator');
     $id = (int)($_POST['id'] ?? 0);
@@ -60,7 +59,7 @@ if (isset($_GET['ok'])) {
     $success = 'Zapisano zmiany';
 }
 
-// --- Wyszukiwanie ---
+// szukanie
 $q = trim($_GET['q'] ?? '');
 if ($q !== '') {
     $like = '%' . $q . '%';
@@ -75,7 +74,7 @@ if ($q !== '') {
     $list = $pdo->query('SELECT * FROM customers ORDER BY created_at DESC')->fetchAll();
 }
 
-// --- Dane do edycji (jak kliknieto Edytuj) ---
+// dane do formularza edycji
 $edit = null;
 if (isset($_GET['edit'])) {
     $stmt = $pdo->prepare('SELECT * FROM customers WHERE id = ?');

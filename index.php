@@ -6,8 +6,7 @@ require_login();
 
 $today = date('Y-m-d');
 $soon = date('Y-m-d', strtotime('+30 days'));
-
-// Liczby na pulpit.
+
 $customers = $pdo->query('SELECT COUNT(*) FROM customers WHERE active = 1')->fetchColumn();
 $active = $pdo->query("SELECT COUNT(*) FROM services WHERE expiry_date >= '$today'")->fetchColumn();
 $expired = $pdo->query("SELECT COUNT(*) FROM services WHERE expiry_date < '$today'")->fetchColumn();

@@ -2,8 +2,7 @@
 require_once 'auth.php';
 require_once 'db.php';
 require_once 'functions.php';
-
-// Jak juz zalogowany - od razu do panelu.
+
 if (is_logged_in()) {
     redirect('index.php');
 }
@@ -22,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Zly email lub haslo';
     } elseif (!$user['active']) {
         $error = 'Konto jest nieaktywne';
-    } else {
-        // Zapamietujemy dane w sesji.
+    } else {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['name'] = $user['name'];
         $_SESSION['role'] = $user['role'];

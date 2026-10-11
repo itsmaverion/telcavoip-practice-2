@@ -1,6 +1,5 @@
 <?php
-require_once 'auth.php';
-// Kasujemy sesje i wracamy na logowanie.
+require_once 'auth.php';
 session_destroy();
 header('Location: login.php');
 exit;

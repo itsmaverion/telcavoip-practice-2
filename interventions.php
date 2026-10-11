@@ -6,7 +6,7 @@ require_login();
 
 $error = '';
 
-// --- Dodanie interwencji (moga wszyscy zalogowani) ---
+// nowa interwencja
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
     require_login();
     $customer_id = (int)($_POST['customer_id'] ?? 0);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     }
 }
 
-// --- Zamkniecie interwencji ---
+// zamkniecie
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'close') {
     require_login();
     $id = (int)($_POST['id'] ?? 0);
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'close
     redirect('interventions.php?ok=1');
 }
 
-// --- Wgranie zalacznika ---
+// wgranie pliku
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'upload') {
     require_login();
     $id = (int)($_POST['id'] ?? 0);
@@ -45,10 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         $error = 'Blad przy wgrywaniu pliku';
     } elseif (!in_array($file['type'], $ALLOWED_FILE_TYPES, true)) {
-        // Sprawdzamy typ pliku - tylko PDF/PNG/JPG.
+        // tylko PDF/PNG/JPG
         $error = 'Niedozwolony typ pliku (dozwolone: PDF, PNG, JPG)';
     } elseif ($file['size'] > MAX_FILE_SIZE) {
-        // Za duzy plik odrzucamy i nie zapisujemy.
+        // za duzy - odrzucamy
         $error = 'Plik jest za duzy (max 5 MB)';
     } else {
         $stored = time() . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $file['name']);
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
 
 $success = isset($_GET['ok']) ? 'Zapisano zmiany' : '';
 
-// --- Filtr open / closed ---
+// filtr
 $filter = $_GET['filter'] ?? '';
 $sql = 'SELECT i.*, c.name AS customer_name,
         (SELECT COUNT(*) FROM attachments a WHERE a.intervention_id = i.id) AS files
@@ -75,11 +75,11 @@ if (in_array($filter, ['open', 'closed'], true)) {
 $sql .= ' ORDER BY i.opened_at DESC';
 $list = $pdo->query($sql)->fetchAll();
 
-// Interwencja otwarta dluzej niz 7 dni = zalegla.
+// otwarta > 7 dni = zalegla
 $overdue_limit = date('Y-m-d H:i:s', strtotime('-7 days'));
 
 $customers = $pdo->query('SELECT id, name FROM customers WHERE active = 1 ORDER BY name')->fetchAll();
-// Uslugi do powiazania z interwencja (opcjonalnie).
+// uslugi do wyboru (opcjonalnie)
 $services = $pdo->query(
     'SELECT s.id, s.type, c.name AS customer_name
      FROM services s JOIN customers c ON c.id = s.customer_id

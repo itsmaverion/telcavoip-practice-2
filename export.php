@@ -4,7 +4,7 @@ require_once 'db.php';
 require_once 'functions.php';
 require_login();
 
-// Eksport danych do pliku CSV (otwiera sie w Excelu).
+// eksport do CSV
 $type = $_GET['type'] ?? '';
 
 if ($type === 'customers') {
@@ -28,12 +28,11 @@ if ($type === 'customers') {
     die('Nieznany typ eksportu.');
 }
 
-// Naglowki HTTP - przegladarka pobierze plik.
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 
 $out = fopen('php://output', 'w');
-// BOM, zeby polskie znaki dzialaly w Excelu
+// BOM dla polskich znakow w Excelu
 fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
 fputcsv($out, $header);
 foreach ($rows as $row) {

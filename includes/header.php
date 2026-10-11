@@ -1,6 +1,5 @@
 <?php
-// Wspolny naglowek z bocznym menu. Kazda strona panelu docza go na gorze.
-// Zmienna $page ustawia, ktory link menu jest podswietlony.
+// wspolny naglowek + menu; $page = aktywna zakladka
 if (!isset($page)) { $page = ''; }
 ?>
 <!doctype html>

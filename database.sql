@@ -1,13 +1,11 @@
--- ============================================================
--- Baza danych TelcaVoIP (MySQL)
--- Import przez phpMyAdmin: utworzy baze i wszystkie tabele.
--- ============================================================
+-- Baza danych TelcaVoIP
+-- import przez phpMyAdmin
 
 CREATE DATABASE IF NOT EXISTS telcavoip
   DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE telcavoip;
 
--- Uzytkownicy panelu
+-- uzytkownicy
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
@@ -17,7 +15,7 @@ CREATE TABLE users (
   active TINYINT(1) NOT NULL DEFAULT 1
 );
 
--- Klienci
+-- klienci
 CREATE TABLE customers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -29,7 +27,7 @@ CREATE TABLE customers (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Konta VoIP (kazde nalezy do jednego klienta)
+-- konta VoIP
 CREATE TABLE voip_accounts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   customer_id INT NOT NULL,
@@ -39,7 +37,7 @@ CREATE TABLE voip_accounts (
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
--- Uslugi
+-- uslugi
 CREATE TABLE services (
   id INT AUTO_INCREMENT PRIMARY KEY,
   customer_id INT NOT NULL,
@@ -49,7 +47,7 @@ CREATE TABLE services (
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
--- Historia odnowien uslug
+-- historia odnowien
 CREATE TABLE renewals (
   id INT AUTO_INCREMENT PRIMARY KEY,
   service_id INT NOT NULL,
@@ -60,7 +58,7 @@ CREATE TABLE renewals (
   FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
--- Interwencje techniczne
+-- interwencje
 CREATE TABLE interventions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   customer_id INT NOT NULL,
@@ -73,7 +71,7 @@ CREATE TABLE interventions (
   FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
--- Zalaczniki (metadane; sam plik lezy w folderze uploads)
+-- zalaczniki (plik lezy w uploads/)
 CREATE TABLE attachments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   intervention_id INT NOT NULL,
@@ -86,7 +84,7 @@ CREATE TABLE attachments (
   FOREIGN KEY (intervention_id) REFERENCES interventions(id)
 );
 
--- Dziennik zdarzen (audyt). Tylko dopisujemy - nie edytujemy i nie kasujemy.
+-- dziennik zdarzen (audyt)
 CREATE TABLE audit_logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   actor_id INT NOT NULL,
@@ -96,7 +94,6 @@ CREATE TABLE audit_logs (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Konto startowe administratora
--- login: admin@telcavoip.eu   haslo: admin123
+-- startowy admin: admin@telcavoip.eu / admin123
 INSERT INTO users (name, email, password_hash, role, active) VALUES
 ('Administrator', 'admin@telcavoip.eu', '$2y$10$Wz2glml6ADB5qLjOla0k4eCsGJFjULIcjkoP60gwfnRjus8waWpz2', 'administrator', 1);

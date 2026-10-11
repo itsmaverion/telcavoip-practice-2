@@ -2,12 +2,12 @@
 require_once 'auth.php';
 require_once 'db.php';
 require_once 'functions.php';
-require_role('administrator'); // tylko administrator
+require_role('administrator');
 
 $error = '';
 $roles = ['administrator' => 'Administrator', 'operator' => 'Operator', 'technician' => 'Technik'];
 
-// --- Utworzenie uzytkownika ---
+// nowy uzytkownik
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     }
 }
 
-// --- Deaktywacja uzytkownika ---
+// wylaczenie konta
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'deactivate') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id === (int)$_SESSION['user_id']) {

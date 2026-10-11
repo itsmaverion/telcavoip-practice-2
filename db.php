@@ -1,6 +1,4 @@
 <?php
-// Polaczenie z baza przez PDO. Uzywamy zapytan przygotowanych (prepared
-// statements), zeby chronic sie przed SQL injection.
 require_once __DIR__ . '/config.php';
 
 try {
@@ -10,5 +8,5 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 } catch (PDOException $e) {
-    die('Blad polaczenia z baza danych. Sprawdz czy MySQL dziala i czy zaimportowano database.sql.');
+    die('Blad polaczenia z baza. Sprawdz czy MySQL dziala i czy zaimportowano database.sql.');
 }
