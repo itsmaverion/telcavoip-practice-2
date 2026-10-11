@@ -10,6 +10,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
     require_login();
     $customer_id = (int)($_POST['customer_id'] ?? 0);
+    $service_id = (int)($_POST['service_id'] ?? 0) ?: null;
     $type = trim($_POST['type'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
 
@@ -18,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     if (!$stmt->fetch()) {
         $error = 'Wybrany klient nie istnieje';
     } else {
-        $stmt = $pdo->prepare('INSERT INTO interventions (customer_id, type, notes) VALUES (?, ?, ?)');
-        $stmt->execute([$customer_id, $type, $notes]);
+        $stmt = $pdo->prepare('INSERT INTO interventions (customer_id, service_id, type, notes) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$customer_id, $service_id, $type, $notes]);
         write_audit($pdo, $_SESSION['user_id'], 'create', 'intervention', $pdo->lastInsertId());
         redirect('interventions.php?ok=1');
     }
@@ -74,7 +75,16 @@ if (in_array($filter, ['open', 'closed'], true)) {
 $sql .= ' ORDER BY i.opened_at DESC';
 $list = $pdo->query($sql)->fetchAll();
 
+// Interwencja otwarta dluzej niz 7 dni = zalegla.
+$overdue_limit = date('Y-m-d H:i:s', strtotime('-7 days'));
+
 $customers = $pdo->query('SELECT id, name FROM customers WHERE active = 1 ORDER BY name')->fetchAll();
+// Uslugi do powiazania z interwencja (opcjonalnie).
+$services = $pdo->query(
+    'SELECT s.id, s.type, c.name AS customer_name
+     FROM services s JOIN customers c ON c.id = s.customer_id
+     ORDER BY c.name'
+)->fetchAll();
 
 $page = 'interventions';
 require 'includes/header.php';
@@ -109,7 +119,9 @@ require 'includes/header.php';
       <td><?= e($i['notes']) ?></td>
       <td><?= (int)$i['files'] ?></td>
       <td>
-        <?php if ($i['status'] === 'open'): ?><span class="badge badge-open">otwarta</span>
+        <?php if ($i['status'] === 'open' && $i['opened_at'] < $overdue_limit): ?>
+          <span class="badge badge-expired">zalegla</span>
+        <?php elseif ($i['status'] === 'open'): ?><span class="badge badge-open">otwarta</span>
         <?php else: ?><span class="badge badge-closed">zamknieta</span><?php endif; ?>
       </td>
       <td>
@@ -147,6 +159,15 @@ require 'includes/header.php';
         <select name="customer_id" required>
           <option value="">-- wybierz klienta --</option>
           <?php foreach ($customers as $c): ?><option value="<?= (int)$c['id'] ?>"><?= e($c['name']) ?></option><?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Usluga (opcjonalnie)</label>
+        <select name="service_id">
+          <option value="">-- brak / nie dotyczy --</option>
+          <?php foreach ($services as $s): ?>
+            <option value="<?= (int)$s['id'] ?>"><?= e($s['customer_name'] . ' - ' . $s['type']) ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
       <div class="form-row"><label>Typ</label><input type="text" name="type" required></div>
