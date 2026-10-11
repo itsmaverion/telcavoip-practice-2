@@ -30,6 +30,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
     }
 }
 
+// --- Edycja konta (numer + ewentualne przepiecie na innego klienta) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit') {
+    require_role('administrator', 'operator');
+    $id = (int)($_POST['id'] ?? 0);
+    $customer_id = (int)($_POST['customer_id'] ?? 0);
+    $number = trim($_POST['number'] ?? '');
+
+    $stmt = $pdo->prepare('SELECT * FROM voip_accounts WHERE id = ?');
+    $stmt->execute([$id]);
+    $current = $stmt->fetch();
+
+    $stmt = $pdo->prepare('SELECT id FROM customers WHERE id = ?');
+    $stmt->execute([$customer_id]);
+
+    if (!$current) {
+        $error = 'Nie znaleziono konta VoIP';
+    } elseif (!$stmt->fetch()) {
+        $error = 'Wybrany klient nie istnieje';
+    } else {
+        $stmt = $pdo->prepare('UPDATE voip_accounts SET customer_id = ?, number = ? WHERE id = ?');
+        $stmt->execute([$customer_id, $number, $id]);
+        // Przepiecie na innego klienta zapisujemy osobno w audycie.
+        if ((int)$current['customer_id'] !== $customer_id) {
+            write_audit($pdo, $_SESSION['user_id'], 'reassign', 'voip', $id);
+        }
+        write_audit($pdo, $_SESSION['user_id'], 'update', 'voip', $id);
+        redirect('voip.php?ok=1');
+    }
+}
+
 // --- Zmiana statusu ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'status') {
     require_role('administrator', 'operator');
@@ -54,6 +84,14 @@ $list = $pdo->query(
 )->fetchAll();
 
 $customers = $pdo->query('SELECT id, name FROM customers WHERE active = 1 ORDER BY name')->fetchAll();
+
+// Dane do edycji (jak kliknieto Edytuj).
+$edit = null;
+if (isset($_GET['edit'])) {
+    $stmt = $pdo->prepare('SELECT * FROM voip_accounts WHERE id = ?');
+    $stmt->execute([(int)$_GET['edit']]);
+    $edit = $stmt->fetch();
+}
 
 $page = 'voip';
 require 'includes/header.php';
@@ -84,12 +122,13 @@ require 'includes/header.php';
         <form method="post" style="display:flex; gap:6px;">
           <input type="hidden" name="action" value="status">
           <input type="hidden" name="id" value="<?= (int)$v['id'] ?>">
-          <select name="status" style="width:150px;">
+          <select name="status" style="width:140px;">
             <?php foreach ($statuses as $key => $label): ?>
               <option value="<?= $key ?>" <?= $v['status'] === $key ? 'selected' : '' ?>><?= $label ?></option>
             <?php endforeach; ?>
           </select>
           <button class="btn btn-small" type="submit">OK</button>
+          <a class="btn btn-small btn-secondary" href="voip.php?edit=<?= (int)$v['id'] ?>">Edytuj</a>
         </form>
       </td>
       <?php endif; ?>
@@ -123,6 +162,30 @@ require 'includes/header.php';
           <?php foreach ($statuses as $key => $label): ?><option value="<?= $key ?>"><?= $label ?></option><?php endforeach; ?>
         </select>
       </div>
+      <div class="modal-actions">
+        <a class="btn btn-secondary" href="voip.php">Anuluj</a>
+        <button type="submit" class="btn">Zapisz</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Okno edycji konta (przepiecie klienta / zmiana numeru) -->
+<div class="modal-bg <?= $edit ? 'show' : '' ?>" id="modal-edit">
+  <div class="modal">
+    <h2>Edytuj konto VoIP</h2>
+    <form method="post" onsubmit="return confirm('Zapisac zmiany? Zmiana klienta zostanie odnotowana w audycie.');">
+      <input type="hidden" name="action" value="edit">
+      <input type="hidden" name="id" value="<?= $edit ? (int)$edit['id'] : 0 ?>">
+      <div class="form-row">
+        <label>Klient</label>
+        <select name="customer_id" required>
+          <?php foreach ($customers as $c): ?>
+            <option value="<?= (int)$c['id'] ?>" <?= ($edit && (int)$edit['customer_id'] === (int)$c['id']) ? 'selected' : '' ?>><?= e($c['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-row"><label>Numer / identyfikator</label><input type="text" name="number" value="<?= e($edit['number'] ?? '') ?>" required></div>
       <div class="modal-actions">
         <a class="btn btn-secondary" href="voip.php">Anuluj</a>
         <button type="submit" class="btn">Zapisz</button>
