@@ -53,10 +53,13 @@ Kazdy importuje go u siebie lokalnie przez phpMyAdmin i pracuje na swojej kopii.
 
 ## Zrobione (obowiazkowe wymagania)
 
-- [x] Logowanie i role (RBAC)
+- [x] Logowanie i role (RBAC) - z odmowa domyslna i zapisem prob dostepu
 - [x] CRUD klientow, kont VoIP, uslug i interwencji
 - [x] Wykrywanie duplikatow klientow
-- [x] Konto VoIP zawsze przypiete do istniejacego klienta
-- [x] Obsluga wygasania i odnowien uslug
+- [x] Konto VoIP zawsze przypiete do istniejacego klienta; przepiecie w audycie
+- [x] Obsluga wygasania i odnowien uslug + pelna historia odnowien
+- [x] Interwencje powiazane z klientem/usluga; zalegle oznaczone osobno
 - [x] Dziennik audytu (niezmienialny)
-- [x] Walidacja zalacznikow
+- [x] Walidacja zalacznikow (typ i rozmiar)
+- [x] Raporty operacyjne (wygasajace uslugi, otwarte interwencje, duplikaty)
+- [x] Eksport danych do CSV (klienci, uslugi)
