@@ -95,11 +95,12 @@ require 'includes/header.php';
     <option value="active" <?= $filter === 'active' ? 'selected' : '' ?>>aktywne</option>
     <option value="expired" <?= $filter === 'expired' ? 'selected' : '' ?>>wygasle</option>
   </select>
+  <a class="btn btn-secondary" href="export.php?type=services" style="margin-left:10px;">Eksport CSV</a>
 </form>
 
 <table>
   <thead>
-    <tr><th>Klient</th><th>Typ</th><th>Start</th><th>Waznosc</th><th>Status</th><?php if (can_edit()): ?><th>Akcje</th><?php endif; ?></tr>
+    <tr><th>Klient</th><th>Typ</th><th>Start</th><th>Waznosc</th><th>Status</th><th>Akcje</th></tr>
   </thead>
   <tbody>
     <?php foreach ($list as $s): ?>
@@ -113,16 +114,19 @@ require 'includes/header.php';
         <?php if ($active): ?><span class="badge badge-active">aktywna</span>
         <?php else: ?><span class="badge badge-expired">wygasla</span><?php endif; ?>
       </td>
-      <?php if (can_edit()): ?>
       <td>
-        <form method="post" style="display:flex; gap:6px;">
-          <input type="hidden" name="action" value="renew">
-          <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
-          <input type="date" name="new_expiry_date" value="<?= e($s['expiry_date']) ?>" required style="width:150px;">
-          <button class="btn btn-small" type="submit">Odnow</button>
-        </form>
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          <?php if (can_edit()): ?>
+          <form method="post" style="display:flex; gap:6px;">
+            <input type="hidden" name="action" value="renew">
+            <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
+            <input type="date" name="new_expiry_date" value="<?= e($s['expiry_date']) ?>" required style="width:150px;">
+            <button class="btn btn-small" type="submit">Odnow</button>
+          </form>
+          <?php endif; ?>
+          <a class="btn btn-small btn-secondary" href="renewals.php?service=<?= (int)$s['id'] ?>">Historia</a>
+        </div>
       </td>
-      <?php endif; ?>
     </tr>
     <?php endforeach; ?>
     <?php if (!$list): ?>
