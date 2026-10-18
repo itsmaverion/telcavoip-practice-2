@@ -13,3 +13,16 @@ document.addEventListener('click', function (ev) {
     ev.target.classList.remove('show');
   }
 });
+
+// na telefonie szerokie tabele maja sie przewijac w poziomie
+document.addEventListener('DOMContentLoaded', function () {
+  var tables = document.querySelectorAll('table');
+  for (var i = 0; i < tables.length; i++) {
+    var t = tables[i];
+    if (t.parentElement && t.parentElement.classList.contains('table-scroll')) continue;
+    var wrap = document.createElement('div');
+    wrap.className = 'table-scroll';
+    t.parentNode.insertBefore(wrap, t);
+    wrap.appendChild(t);
+  }
+});

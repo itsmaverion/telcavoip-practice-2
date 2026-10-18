@@ -180,6 +180,9 @@ td select, td input[type="date"], td input[type="text"] { padding: 8px 11px; fon
 .tile-value { font-size: 34px; font-weight: 700; color: var(--navy); }
 .tile-label { color: var(--muted); margin-top: 6px; font-size: 13px; }
 
+/* owijka na tabele - przewijanie w poziomie na malych ekranach */
+.table-scroll { width: 100%; }
+
 /* Okno modalne */
 .modal-bg { position: fixed; inset: 0; background: rgba(10, 26, 74, 0.5); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
 .modal-bg.show { display: flex; }
@@ -188,11 +191,41 @@ td select, td input[type="date"], td input[type="text"] { padding: 8px 11px; fon
 .form-row { margin-bottom: 14px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
 
+/* Wersja na telefon / tablet */
 @media (max-width: 760px) {
   .layout { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: static; }
-  .sidebar nav { flex-direction: row; flex-wrap: wrap; }
-  .sidebar nav a { flex: 1 1 auto; }
-  .content { padding: 20px 16px; }
-  .topbar { padding: 12px 16px; }
+
+  .sidebar { width: 100%; }
+  .sidebar-logo { padding: 16px 16px; border-bottom: none; }
+  .sidebar nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0 8px 10px;
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sidebar nav a {
+    border-left: none;
+    border-radius: 7px;
+    padding: 9px 14px;
+    white-space: nowrap;
+  }
+  .sidebar nav a.active { border-left: none; }
+
+  .topbar { padding: 12px 14px; }
+  .topbar-title { display: none; }
+  .content { padding: 16px 14px; }
+
+  h1 { font-size: 21px; }
+  .page-head { margin-bottom: 16px; }
+
+  .tiles { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tile-value { font-size: 28px; }
+
+  /* szerokie tabele przewijamy w poziomie zamiast lamac strone */
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-scroll table { min-width: 560px; }
+
+  .modal { padding: 20px; }
 }
